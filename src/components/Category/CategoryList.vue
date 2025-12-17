@@ -5,37 +5,36 @@
     <p v-if="error"> {{ error }} </p>
 
     <ul v-if="!loading && !error">
-      <li v-for="category in categories" :key="category.id">
+      <!-- <li v-for="category in categories" :key="category.id">
         Nombre: {{ category.name }}
-      </li>
+      </li> -->
+      <CategoryCard
+        v-for="category in categories"
+        :key="category.id"
+        :category="category"
+      />
     </ul>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import CategoryCard from './CategoryCard.vue';
 
 const categories = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-onMounted(() => {
-  fetch('http://localhost:8000/api/v1/categories/')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Error al obtener las categorias');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      categories.value = data;
-    })
-    .catch((err) => {
-      error.value = err.message;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+onMounted(async() => {
+  try{
+    const response = await axios.get('http://localhost:8000/api/v1/categories/');
+    categories.value = response.data;
+  }catch(err){
+    error.value = 'Error al cargar las categorias.' + err.message;
+  }finally{
+    loading.value = false;
+  }
 });
 
 </script>

@@ -16,28 +16,22 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 const products = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
-onMounted(() => {
-  fetch('http://localhost:8000/api/v1/products/')
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Error al obtener los productos');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      products.value = data;
-    })
-    .catch((err) => {
-      error.value = err.message;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
+onMounted(async() => {
+  try{
+    const response = await axios.get('http://localhost:8000/api/v1/products/');
+    products.value = response.data;
+  }catch(err){
+    error.value = 'Error al cargar los productos.' + err.message;
+  }finally{
+    loading.value = false;
+  }
+
 });
 
 
